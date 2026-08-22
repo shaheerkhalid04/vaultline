@@ -350,6 +350,16 @@ def main(argv: list[str] | None = None) -> int:
         console.print(f"[red]{exc}[/red]")
     except KeyboardInterrupt:
         console.print("\n[yellow]interrupted[/yellow]")
+    except Exception as exc:  # postgrest and storage errors surface here
+        message = str(exc)
+        console.print(f"[red]supabase error:[/red] {message}")
+        if "schema cache" in message or "does not exist" in message:
+            console.print(
+                "[dim]the tables are missing, run supabase/migrations/0001_init.sql "
+                "in the SQL editor[/dim]"
+            )
+        elif "Bucket not found" in message:
+            console.print("[dim]the bucket is missing, the same migration creates it[/dim]")
 
     return 1
 

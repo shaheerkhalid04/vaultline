@@ -283,8 +283,17 @@ the CLI, which uploads straight to Supabase.
 
 ## GitHub integration
 
-This repo is connected to the Supabase project, so the layout under `supabase/`
-is what the integration expects. Pushing to the connected branch runs any new
-file in `supabase/migrations/` against the database and deploys every function
-in `supabase/functions/`, which means `npx supabase functions deploy` is only
-needed when you want to push a change without a commit.
+The repo is connected to the Supabase project, but connecting it does not by
+itself deploy anything. Unless branching is enabled and configured, a push does
+not run `supabase/migrations/` or deploy `supabase/functions/`. Treat the CLI as
+the real deploy path:
+
+```bash
+npx supabase functions deploy validate-upload --project-ref your-project-ref
+```
+
+That command needs only `npx supabase login` first. It does not need `link`, and
+it does not need Docker, since the CLI uploads the source and builds it server
+side. The migration is the one piece the CLI cannot do without the database
+password, so run it in the SQL editor, or link with the password and use
+`npx supabase db push`.
