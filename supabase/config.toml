@@ -1,0 +1,5 @@
+project_id = "vaultline"
+
+[functions.validate-upload]
+verify_jwt = true
+entrypoint = "./functions/validate-upload/index.ts"
