@@ -232,6 +232,55 @@ Supabase pauses free projects after a week of inactivity, and paused projects
 return errors on every call. If `python main.py health` starts failing, resume
 the project from the dashboard. Data survives the pause.
 
+## Web app
+
+`web/` is a Next.js front end over the same flow, deployed on Vercel. The
+browser never sees the service role key: the page calls route handlers under
+`/api`, those run in the Node runtime, and only they talk to Supabase and to the
+Edge Function.
+
+| Route | Method | Does |
+| --- | --- | --- |
+| `/api/files` | GET | list metadata rows |
+| `/api/files` | POST | upload to storage, then call the edge function |
+| `/api/files/[id]` | GET | one record |
+| `/api/files/[id]` | PATCH | JSON edits metadata, multipart replaces the object and revalidates |
+| `/api/files/[id]` | DELETE | remove the object, then the row |
+| `/api/files/[id]/url` | GET | short lived signed download URL |
+| `/api/notes` | GET, POST | table CRUD |
+| `/api/notes/[id]` | PATCH, DELETE | table CRUD |
+
+Run it locally:
+
+```bash
+cd web && npm install
+```
+
+Copy `web/.env.example` to `web/.env.local`, fill in the same two values the CLI
+uses, then:
+
+```bash
+cd web && npm run dev
+```
+
+### Deploying to Vercel
+
+The Next.js app lives in a subdirectory, so the Vercel project needs its **Root
+Directory** set to `web`. Environment variables to set on the project, all
+without a `NEXT_PUBLIC_` prefix so they stay server side:
+
+| Variable | Value |
+| --- | --- |
+| `SUPABASE_URL` | the project URL |
+| `SUPABASE_SERVICE_ROLE_KEY` | the service_role key |
+| `VAULTLINE_BUCKET` | `vaultline-files` |
+| `VAULTLINE_MAX_MB` | `10` |
+
+Vercel request bodies are capped at 4.5 MB on the serverless runtime, so uploads
+larger than that need a direct to storage signed upload rather than a POST
+through the route handler. The 10 MB limit in the Edge Function still applies to
+the CLI, which uploads straight to Supabase.
+
 ## GitHub integration
 
 This repo is connected to the Supabase project, so the layout under `supabase/`
