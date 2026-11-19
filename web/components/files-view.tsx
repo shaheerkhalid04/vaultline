@@ -22,6 +22,7 @@ import { useToast } from "./toast";
 import { Badge, Button, Card, EmptyState, Field, IconButton, Input, SkeletonRow, cn } from "./ui";
 import { REJECTION_HINTS, absoluteTime, humanSize, parseTags, relativeTime } from "@/lib/format";
 import type { FileRecord } from "@/lib/types";
+import { adminFetch } from "@/lib/admin-token";
 
 const CATEGORY_ICONS: Record<string, typeof FileText> = {
   image: ImageIcon,
@@ -157,7 +158,7 @@ function FileRow({
 
     setBusy(true);
     try {
-      const response = await fetch(`/api/files/${file.id}`, { method: "DELETE" });
+      const response = await adminFetch(`/api/files/${file.id}`, { method: "DELETE" });
       const body = await response.json();
       if (!response.ok) throw new Error(body.error);
       toast.success("Deleted", `${file.file_name} and its row are gone.`);
@@ -241,7 +242,7 @@ function UploadPanel({ onUploaded }: { onUploaded: () => Promise<void> | void })
     form.append("tags", tags);
 
     try {
-      const response = await fetch("/api/files", { method: "POST", body: form });
+      const response = await adminFetch("/api/files", { method: "POST", body: form });
       const body = await response.json();
 
       if (!response.ok) {
@@ -379,7 +380,7 @@ function FileDrawer({
   const saveMetadata = async () => {
     setBusy(true);
     try {
-      const response = await fetch(`/api/files/${file.id}`, {
+      const response = await adminFetch(`/api/files/${file.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ owner, tags: parseTags(tags) }),
@@ -401,7 +402,7 @@ function FileDrawer({
     form.append("file", replacement);
 
     try {
-      const response = await fetch(`/api/files/${file.id}`, { method: "PATCH", body: form });
+      const response = await adminFetch(`/api/files/${file.id}`, { method: "PATCH", body: form });
       const body = await response.json();
 
       if (!response.ok) {
@@ -426,7 +427,7 @@ function FileDrawer({
     if (!window.confirm(`Delete ${file.file_name} and its metadata row?`)) return;
     setBusy(true);
     try {
-      const response = await fetch(`/api/files/${file.id}`, { method: "DELETE" });
+      const response = await adminFetch(`/api/files/${file.id}`, { method: "DELETE" });
       const body = await response.json();
       if (!response.ok) throw new Error(body.error);
       toast.success("Deleted", `${file.file_name} and its row are gone.`);

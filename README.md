@@ -250,6 +250,13 @@ Edge Function.
 | `/api/notes` | GET, POST | table CRUD |
 | `/api/notes/[id]` | PATCH, DELETE | table CRUD |
 
+Reads are public. Every write (POST, PATCH and DELETE above) needs the owner's
+`ADMIN_TOKEN`, sent as an `x-admin-token` header or `Authorization: Bearer`,
+because the route handlers write with the service role key. With no
+`ADMIN_TOKEN` set, writes answer 503 and nothing changes. In the page, open
+**Admin token**, paste it once, and it stays in that browser only. The Python
+CLI talks to Supabase directly and is not affected.
+
 Run it locally:
 
 ```bash
@@ -273,6 +280,7 @@ without a `NEXT_PUBLIC_` prefix so they stay server side:
 | --- | --- |
 | `SUPABASE_URL` | the project URL |
 | `SUPABASE_SERVICE_ROLE_KEY` | the service_role key |
+| `ADMIN_TOKEN` | a long random string; without it the site is read only |
 | `VAULTLINE_BUCKET` | `vaultline-files` |
 | `VAULTLINE_MAX_MB` | `10` |
 

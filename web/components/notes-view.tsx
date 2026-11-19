@@ -7,6 +7,7 @@ import { useToast } from "./toast";
 import { Button, Card, EmptyState, Field, IconButton, Input, Textarea, cn } from "./ui";
 import { relativeTime } from "@/lib/format";
 import type { Note } from "@/lib/types";
+import { adminFetch } from "@/lib/admin-token";
 
 export function NotesView({
   notes,
@@ -81,7 +82,7 @@ function NoteCard({
     event.stopPropagation();
     setBusy(true);
     try {
-      const response = await fetch(`/api/notes/${note.id}`, {
+      const response = await adminFetch(`/api/notes/${note.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ pinned: !note.pinned }),
@@ -101,7 +102,7 @@ function NoteCard({
 
     setBusy(true);
     try {
-      const response = await fetch(`/api/notes/${note.id}`, { method: "DELETE" });
+      const response = await adminFetch(`/api/notes/${note.id}`, { method: "DELETE" });
       if (!response.ok) throw new Error((await response.json()).error);
       toast.success("Note deleted");
       await onChanged();
@@ -188,7 +189,7 @@ function NoteEditor({
 
     setBusy(true);
     try {
-      const response = await fetch(note ? `/api/notes/${note.id}` : "/api/notes", {
+      const response = await adminFetch(note ? `/api/notes/${note.id}` : "/api/notes", {
         method: note ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title, body, owner, pinned }),

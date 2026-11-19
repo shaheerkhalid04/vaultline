@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { refuseUnlessAdmin } from "@/lib/admin";
 import { admin, config, toErrorResponse } from "@/lib/supabase";
 import type { Note } from "@/lib/types";
 
@@ -7,6 +8,9 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function PATCH(request: NextRequest, context: { params: Promise<{ id: string }> }) {
+  const refused = refuseUnlessAdmin(request);
+  if (refused) return refused;
+
   try {
     const { id } = await context.params;
     const { notesTable } = config();
@@ -37,7 +41,10 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
   }
 }
 
-export async function DELETE(_request: NextRequest, context: { params: Promise<{ id: string }> }) {
+export async function DELETE(request: NextRequest, context: { params: Promise<{ id: string }> }) {
+  const refused = refuseUnlessAdmin(request);
+  if (refused) return refused;
+
   try {
     const { id } = await context.params;
     const { notesTable } = config();

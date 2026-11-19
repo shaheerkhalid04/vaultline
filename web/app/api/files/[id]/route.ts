@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { refuseUnlessAdmin } from "@/lib/admin";
 import { admin, config, invokeEdge, toErrorResponse } from "@/lib/supabase";
 import type { FileRecord } from "@/lib/types";
 
@@ -30,6 +31,9 @@ export async function GET(_request: NextRequest, context: { params: Promise<{ id
  * Edge Function, so the checksum, size and mime type are re-derived.
  */
 export async function PATCH(request: NextRequest, context: { params: Promise<{ id: string }> }) {
+  const refused = refuseUnlessAdmin(request);
+  if (refused) return refused;
+
   try {
     const { id } = await context.params;
     const { bucket, filesTable } = config();
@@ -96,7 +100,10 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
 }
 
 /** Delete the object before the row, so no row can outlive its bytes. */
-export async function DELETE(_request: NextRequest, context: { params: Promise<{ id: string }> }) {
+export async function DELETE(request: NextRequest, context: { params: Promise<{ id: string }> }) {
+  const refused = refuseUnlessAdmin(request);
+  if (refused) return refused;
+
   try {
     const { id } = await context.params;
     const { bucket, filesTable } = config();
