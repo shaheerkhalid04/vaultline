@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { refuseUnlessAdmin } from "@/lib/admin";
 import { admin, config, toErrorResponse } from "@/lib/supabase";
 import type { Note } from "@/lib/types";
 
@@ -28,6 +29,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const refused = refuseUnlessAdmin(request);
+  if (refused) return refused;
+
   try {
     const { notesTable } = config();
     const payload = await request.json();

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { refuseUnlessAdmin } from "@/lib/admin";
 import { admin, config, invokeEdge, toErrorResponse } from "@/lib/supabase";
 import type { FileRecord } from "@/lib/types";
 
@@ -48,6 +49,9 @@ export async function GET(request: NextRequest) {
  * they are allowed to stay and writes the metadata row itself.
  */
 export async function POST(request: NextRequest) {
+  const refused = refuseUnlessAdmin(request);
+  if (refused) return refused;
+
   try {
     const { bucket, maxMb } = config();
     const form = await request.formData();

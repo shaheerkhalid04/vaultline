@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { FileText, HardDrive, Moon, ShieldCheck, StickyNote, Sun, TriangleAlert } from "lucide-react";
 
+import { AdminToken } from "./admin-token";
 import { FilesView } from "./files-view";
 import { NotesView } from "./notes-view";
 import { ToastProvider } from "./toast";
@@ -79,6 +80,8 @@ function Shell() {
         </section>
 
         {setupError ? <SetupNotice message={setupError} /> : null}
+
+        <AdminToken />
 
         <nav className="mb-5 inline-flex rounded-xl border border-border bg-surface p-1">
           <TabButton active={tab === "files"} onClick={() => setTab("files")}>
